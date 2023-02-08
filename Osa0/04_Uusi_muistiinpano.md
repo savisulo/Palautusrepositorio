@@ -1,6 +1,7 @@
 sequenceDiagram
     participant Browser
     participant Server
+    
     Browser->>Server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
     Server-->Browser: Status code 302 (uudelleenohjauspyyntö osoitteeseen /notes)
 

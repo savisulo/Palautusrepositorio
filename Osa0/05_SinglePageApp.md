@@ -1,6 +1,7 @@
 sequenceDiagram
     participant Browser
     participant Server
+    
     Browser->>Server: GET https://studies.cs.helsinki.fi/exampleapp/spa
     Server-->Browser: HTML document
 
