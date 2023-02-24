@@ -8,7 +8,7 @@ const Button = (props) => {
   )
 }
 
-const Display = (props) => {
+const DisplayAnecdote = (props) => {
   return (
     <>
     <h2>{props.text}</h2>
@@ -16,6 +16,19 @@ const Display = (props) => {
     <p>has {props.points} votes</p>
     </>
   )
+}
+
+const DisplayWinnerAnecdote = (props) => {
+  if (props.points === 0) {
+    return <p>No votes given yet.</p>
+  } else {
+  return (
+    <>
+    <p>{props.anecdote}</p>
+    <p>has {props.points} votes</p>
+    </>
+  )
+  }
 }
 
 const App = () => {
@@ -32,29 +45,29 @@ const App = () => {
 
   const [selected, setSelected] = useState(0)
 
-  const initialVotes = Array(anecdotes.length).fill(0)
-  const [votes, setVotes] = useState(initialVotes)
+  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
 
   const nextAnecdote = () => {
     setSelected(Math.floor(Math.random() * anecdotes.length))
   }
 
   const vote = () => {
-    setVotes(...[votes], votes[index] += 1)
+    const copy = [...votes]
+    copy[selected] += 1
+    setVotes(copy)
   }
-
-  const index = anecdotes.indexOf(anecdotes[selected])
-
-  const largest = Math.max.apply(null, votes)
-  const indexLargest = votes.indexOf(largest)
-  const winnerAnecdote = anecdotes[indexLargest]
+  
+  const highestPoints = Math.max.apply(null, votes)
+  const indexHighestPoints = votes.indexOf(highestPoints)
+  const winnerAnecdote = anecdotes[indexHighestPoints]
 
   return (
     <div>
-      <Display anecdote={anecdotes[selected]} points={votes[index]} text="Anecdote of the day" />
+      <DisplayAnecdote anecdote={anecdotes[selected]} points={votes[selected]} text="Anecdote of the day" />
       <Button handleClick={vote} text="vote" />
       <Button handleClick={nextAnecdote} text="next anecdote" />
-      <Display anecdote={winnerAnecdote} points={largest} text="Anecdote with most votes" />
+      <h2>Anecdote with most votes</h2>
+      <DisplayWinnerAnecdote anecdote={winnerAnecdote} points={highestPoints} />
     </div>
   )
 }
