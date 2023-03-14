@@ -1,0 +1,21 @@
+h1 {
+    color: green;
+    font-style: italic;
+}
+
+.successMessage, .errorMessage {
+    background: lightgrey;
+    font-size: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.successMessage {
+    color: green;
+    border: solid 5px green;
+}
+
+.errorMessage {
+    color: red;
+    border: solid 5px red;
+}
