@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import Add from './components/Add'
-import Numbers from './components/Numbers'
+import Contacts from './components/Contacts'
 import Notification from './components/Notification'
 
-import personService from './services/persons'
+import contactService from './services/contacts'
 
 const App = () => {
-  const [persons, setPersons] = useState([])
+  const [contacts, setContacts] = useState([])
   const [newSearch, setNewSearch] = useState('') 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -15,24 +15,24 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
-    personService
+    contactService
       .getAll()
-      .then(initialPersons => {
-        setPersons(initialPersons)
+      .then(initialContacts => {
+        setContacts(initialContacts)
       })
   }, [])
 
-  const addName = (event) => {
+  const addContact = (event) => {
     event.preventDefault()
-    if (persons.some(e => e.name.toLowerCase() === newName.toLowerCase())) {
+    if (contacts.some(c => c.name.toLowerCase() === newName.toLowerCase())) {
         if (window.confirm(`${newName} is already added to phonebook. Replace the old number with new one?`)) {
-          const person = persons.find(p => p.name === newName)
-          const id = person.id
-          const changedPerson = {...person, number: newNumber}
-          personService
-            .updatePerson(id, changedPerson)
-            .then(returnedPerson => {
-              setPersons(persons.map(person => person.name !== newName ? person : returnedPerson))
+          const contact = contacts.find(c => c.name === newName)
+          const id = contact.id
+          const changedContact = {...contact, number: newNumber}
+          contactService
+            .updateContact(id, changedContact)
+            .then(returnedContact => {
+              setContacts(contacts.map(contact => contact.name !== newName ? contact : returnedContact))
               setSuccessMessage(`Updated ${newName}`)
               setTimeout(() => {
                 setSuccessMessage(null)
@@ -47,7 +47,7 @@ const App = () => {
               setTimeout(() => {
                 setErrorMessage(null)
               }, 5000)
-              setPersons(persons.filter(p => p.id !== id))
+              setContacts(contacts.filter(c => c.id !== id))
             })
         }
     } else {
@@ -56,17 +56,23 @@ const App = () => {
         number: newNumber
       }
 
-      personService
-        .createPerson(newObject)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson))
+      contactService
+        .createContact(newObject)
+        .then(returnedContact => {
+          setContacts(contacts.concat(returnedContact))
+          setSuccessMessage(`Added ${newName}`)
+          setTimeout(() => {
+            setSuccessMessage(null)
+          }, 5000)
           setNewName("")
           setNewNumber("")
         })
-        setSuccessMessage(`Added ${newName}`)
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 5000)
+        .catch(error => {
+          setErrorMessage(error.response.data.error)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+        })
     }
   }
 
@@ -83,23 +89,23 @@ const App = () => {
     setNewSearch(search)
   }
 
-  const handleDelete = (person, id) => {
-    if (window.confirm(`Delete ${person}?`)) {
-      personService
-      .deletePerson(id)
-      .then(deletedPerson => {
-        setPersons(persons.filter(p => p.id !== id))
+  const handleDelete = (contact, id) => {
+    if (window.confirm(`Delete ${contact}?`)) {
+      contactService
+      .deleteContact(id)
+      .then(deletedContact => {
+        setContacts(contacts.filter(c => c.id !== id))
       })
-      setSuccessMessage(`Deleted ${person}`)
+      setSuccessMessage(`Deleted ${contact}`)
       setTimeout(() => {
         setSuccessMessage(null)
       }, 5000)
     }
   }
   
-  const peopleToShow = newSearch === ''
-    ? persons
-    : persons.filter(person => person.name.toLowerCase().includes(newSearch.toLowerCase()))
+  const contactsToShow = newSearch === ''
+    ? contacts
+    : contacts.filter(contact => contact.name.toLowerCase().includes(newSearch.toLowerCase()))
 
   return (
     <div>
@@ -107,11 +113,11 @@ const App = () => {
       <Notification successMessage={successMessage} errorMessage={errorMessage} />
       <Filter text="filter shown with: " search={newSearch} handleSearchChange={handleSearchChange} />
       <h3>Add a New</h3>
-      <Add handleSubmit={addName} name={newName} handleNameChange={handleNameChange} number={newNumber} handleNumberChange={handleNumberChange} />
+      <Add handleSubmit={addContact} name={newName} handleNameChange={handleNameChange} number={newNumber} handleNumberChange={handleNumberChange} />
       <h3>Numbers</h3>
       <ul>
-        {peopleToShow.map(person =>
-        <Numbers key={person.name} name={person.name} number={person.number} handleDelete={() => handleDelete(person.name, person.id)} />)}
+        {contactsToShow.map(contact =>
+        <Contacts key={contact.name} name={contact.name} number={contact.number} handleDelete={() => handleDelete(contact.name, contact.id)} />)}
       </ul>
     </div>
   )
